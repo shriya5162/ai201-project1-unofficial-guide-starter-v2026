@@ -1,20 +1,6 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
-
-> **This file is your submission.** Fill it in as you go — most sections get
-> written during the milestone that produces them, not at the end.
->
-> How the starter works, and every command you'll need, is in `RUNNING.md`.
-> Leave that file alone.
->
-> **Paste everything as text.** No screenshots, no video. A typed table gets
-> full credit; a picture of the same table gets none, because the grader can't
-> read it.
->
-> Delete these instruction blocks as you replace them. The `<!-- -->` comments
-> are notes to you and don't show up when the page renders — you can leave them
-> or remove them.
+Shriya Peddakama — corpus: `city_guides`
 
 ---
 
@@ -22,11 +8,23 @@
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
+You ask a question in plain English about a region of nine small towns, and the
+system answers from a set of travel guides rather than from anything the model
+already knows, naming the guide it used. It runs on the `city_guides` corpus:
+fourteen documents, about 29,000 characters — nine town guides plus five that
+cut across all of them on eating, walking, transport, seasons and accessibility.
 
-     Milestone 5. -->
+It handles specific questions with real answers — *"how often do Marchwood's
+trams run on a weekday?"*, *"how early do I need to park in Halden Bay on a
+summer weekend?"* — including ones no single sentence answers, like *"which
+town is the best bet for a winter visit?"*, where the answer has to be weighed
+across two documents that never mention each other.
+
+It is also built to say no. Before the model is called at all, the system checks
+how close the nearest matching chunk actually is, and if nothing came back close
+enough it refuses rather than handing the model thin material and hoping. Ask it
+about a hotel in Paris and it tells you it doesn't know, without spending a
+model call to do it.
 
 ## Chunking Strategy
 
@@ -248,18 +246,27 @@ rather than drowning in 8.
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1. Writing the chunker.** I asked Claude to write a chunker that cuts on `##`
+section headings instead of character counts, which is what I'd noticed the
+documents wanted in Milestone 1. What came back also repeated each document's
+`# Title` on every chunk, which I hadn't asked for — the reason given was that
+nine documents contain a section called "Getting there" and the text on its own
+never says which town it means. I kept it, but only after testing it: I built a
+second index with the titles stripped, and the chunk answering *"how do I get to
+Kestrelford?"* fell from rank 7 to rank 56 without them.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
+**2. Cutting the acceptance criteria down, and replacing one.** I had Claude
+draft criteria 4 and 5 and the reasoning under all five. Two things came back
+wrong. The reasons ran ten to fifteen lines each when `criteria.md` asks for a
+sentence or two, so I cut every one of them to three or four lines. And
+criterion 5 was about the duplicated "Practical notes" boilerplate — a real
+observation, but the wrong thing to make a criterion out of, since it measures a
+property of my corpus rather than of my system. I replaced it with source
+attribution being *correct* rather than merely present, which tests the gap
+criterion 2 leaves open: `app.py` prints a `Sources retrieved:` line from
+retrieval metadata whether or not the model cited anything, so criterion 2 can
+pass while the citation is absent or wrong. The boilerplate observation moved to
+the chunking write-up, where it does more good.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
