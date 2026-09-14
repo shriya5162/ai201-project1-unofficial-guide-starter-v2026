@@ -22,12 +22,29 @@ names a target of "4 of 5", and four of three is not a thing.
 """
 
 QUESTIONS = [
-    # {"question": "...", "expects": "..."},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
-    {"question": "", "expects": ""},
+    # Answer sits in one sentence, in two documents that agree.
+    # guide_marchwood.md "Getting around", guide_accessibility.md "Straightforward".
+    {"question": "How often do Marchwood's trams run on a weekday?", "expects": "8 minutes"},
+
+    # Answer sits in one sentence, stated twice in the same words.
+    # guide_kestrelford.md "Eat and drink", guide_eating.md "Local specifics".
+    {"question": "What time does the Kestrelford bakery sell out?", "expects": "11am"},
+
+    # A negative fact. The answer is that a thing does not exist, which is
+    # harder to retrieve than a fact about a thing that does.
+    # guide_elder_ness.md "Getting there".
+    {"question": "Can I reach Elder Ness by public transport?", "expects": "no public transport"},
+
+    # Answer is one sentence but three documents state it in different words
+    # ("fill by 10am", "arrive before 10am", "both lots fill by 10am").
+    # guide_halden_bay.md, guide_seasons.md, guide_regional_transport.md.
+    {"question": "How early do I need to arrive to park in Halden Bay on a summer weekend?", "expects": "10am"},
+
+    # The hard one. No single sentence answers this: it needs Marchwood's "the
+    # one place in the region that works in winter" weighed against Thornby
+    # Wells's "the region's most reliable winter destination after Marchwood".
+    # Two documents, a comparison, and no shared wording with the question.
+    {"question": "Which town in the region is the best bet for a winter visit?", "expects": "Marchwood"},
 ]
 
 # Questions from a different world entirely. Your gate should refuse all five.
