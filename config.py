@@ -52,10 +52,23 @@ TOP_K = 5               # how many chunks to pull back per question
 #
 # LOWER IS BETTER: 0.3 is a close match, 0.9 is unrelated.
 #
-# 0.6 is a reasonable starting point, not a right answer. Milestone 4 has you
-# measure your own two groups of distances and put the cutoff in the gap.
-# Most corpora land somewhere between 0.45 and 0.75.
-THRESHOLD = 0.6
+# Milestone 4, measured rather than guessed. My two groups:
+#
+#   in corpus (5 questions)        0.255 – 0.511
+#   out of corpus (OUT_OF_SCOPE)   0.803 – 0.975
+#
+# Those alone suggest anything from 0.52 to 0.80 works, because the shipped
+# out-of-scope questions are from another planet entirely. So I also measured
+# five NEAR misses — travel-shaped questions this corpus still doesn't cover:
+#
+#   "what is the best hotel in Paris?"            0.583
+#   "how much does the train to Edinburgh cost?"  0.583
+#   "which dorm has the mould problem?"           0.686
+#
+# The real gap is 0.511 to 0.583, not 0.511 to 0.803. 0.55 sits in it.
+# The default 0.6 would have answered the Paris question out of guides to a
+# region that has no Paris in it.
+THRESHOLD = 0.55
 
 
 # ─── Models ──────────────────────────────────────────────────────────────────

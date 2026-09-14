@@ -153,30 +153,98 @@ have deliberately left it for week 2 rather than tuning it away now.
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** Which town in the region is the best bet for a winter visit?
 
 **Answer:**
 
 ```
+  (best distance 0.511, cutoff 0.55)
+
+Marchwood is the best bet for a winter visit because almost everything is
+indoors and nothing closes seasonally. (Source: `guide_marchwood.md`)
+
+Thornby Wells is also noted as the region's most reliable winter destination
+after Marchwood, due to its concert season running from September to April.
+(Source: `guide_thornby_wells.md`)
+
+Sources retrieved: guide_halden_bay.md, guide_kestrelford.md,
+guide_marchwood.md, guide_thornby_wells.md, guide_walking.md
 ```
 
-**My relevance cutoff:**
+This is the question I wrote expecting it to fail. No sentence in the corpus
+answers it — the system had to weigh Marchwood's *"the one place in the region
+that works in winter"* against Thornby Wells's *"the region's most reliable
+winter destination after Marchwood"*, in two documents that never mention each
+other. It got both, in the right order, and cited both.
 
-<!-- The number you set in config.py, and how you got there.
+**Both grounding layers, tested separately.** The gate is the first layer and
+the prompt is the second. To check the second one actually does something, I
+raised the cutoff past a question I know is uncovered:
 
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
+```
+$ python app.py ask "what is the best hotel in Paris?" --threshold 0.7
+  (best distance 0.583, cutoff 0.7)
 
-     Milestone 4. -->
+I don't have enough information to answer your question, as Paris is not
+mentioned in the provided documents.
+```
+
+Retrieval handed it five "Where to stay" chunks and it refused anyway. At my
+real cutoff of 0.55 that question never reaches the model at all.
+
+**My relevance cutoff: 0.55**
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| How often do Marchwood's trams run on a weekday? | Yes | 0.255 |
+| How early to park in Halden Bay on a summer weekend? | Yes | 0.299 |
+| What time does the Kestrelford bakery sell out? | Yes | 0.336 |
+| Can I reach Elder Ness by public transport? | Yes | 0.357 |
+| Which town is the best bet for a winter visit? | Yes | 0.511 |
+| What is the capital of Mongolia? | No | 0.803 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.835 |
+| How do I write a for loop in Rust? | No | 0.836 |
+| How do I change the oil in a diesel engine? | No | 0.888 |
+| Who won the 1994 World Cup? | No | 0.975 |
+
+**Why 0.55 and not 0.6.** Those ten rows on their own are misleading. They show
+a gap between 0.511 and 0.803 — nearly 0.3 wide — and any number in it looks
+equally defensible, including the 0.6 the starter ships with. That is an
+artefact of the out-of-corpus questions being from another planet: Mongolia,
+diesel engines, the 1994 World Cup. Nothing about my corpus made that gap wide;
+the questions did.
+
+So I measured five **near** misses as well — travel-shaped questions that this
+corpus still does not cover:
+
+| Near-miss question | Best distance |
+|---|---|
+| What is the best hotel in Paris? | 0.583 |
+| How much does the train to Edinburgh cost? | 0.583 |
+| Which dorm has the mould problem? | 0.686 |
+| Is the housing lottery random? | 0.773 |
+| Do I need a visa to visit? | 0.846 |
+
+The real gap is **0.511 to 0.583**, and it is 0.072 wide rather than 0.292.
+0.55 sits in it. The default 0.6 would have answered a question about hotels in
+Paris out of guides to a region that contains no Paris.
+
+**What this costs me.** 0.55 leaves only 0.039 of headroom above my hardest
+real question. A question harder than the hardest one I thought to write gets
+refused, and I only have five in-corpus measurements to judge that from. I
+chose that over the alternative: at 0.6 the system confidently answers
+travel-shaped questions about places that aren't in the corpus, and a wrong
+answer that names a real filename is harder for a reader to catch than a
+refusal. If week 2 shows real questions being refused, this number is the first
+thing I'll revisit.
+
+**Top-k stays at 5.** Worth noting that top-k has no effect on the gate at all:
+I measured every in-corpus question at k=3, 5 and 8 and the best distance was
+identical to three decimal places in all three, because the best distance is
+rank 1 by definition. Top-k only changes how much material the model sees after
+the gate has already decided. 5 is enough that the winter question got both
+towns it needed, and small enough that the answer above cites 2 documents
+rather than drowning in 8.
 
 ## How I Used AI
 
